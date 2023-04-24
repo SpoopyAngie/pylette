@@ -9,9 +9,9 @@ from random import uniform
 from math import sqrt
 
 def colordifference(color_a, color_b):
-    return sqrt((color_a[0] - color_b[0])**2 + (color_a[1] - color_b[1])**2 + (color_a[2] - color_b[2])**2)
+    return (color_a[0] - color_b[0])**2 + (color_a[1] - color_b[1])**2 + (color_a[2] - color_b[2])**2
 
-def process(input_image, pixel_start_index, chunk_size, color_palette, pixel_randomizer, queue):
+def process(input_image, pixel_start_index, chunk_size, color_palette, queue):
     while pixel_start_index.value < input_image.size[0] * input_image.size[1]:
         with pixel_start_index.get_lock():
             pixel_index_chunk = pixel_start_index.value
@@ -22,12 +22,11 @@ def process(input_image, pixel_start_index, chunk_size, color_palette, pixel_ran
             pixel_x = pixel_index % input_image.size[0]
             pixel_y = int(pixel_index / input_image.size[0])
             
-            palette_difference = 500
+            palette_difference = 195075
             pixel_palette = None
             pixel_palette_second = None
             for pallete_color in color_palette:
                 pallete_color_difference  = colordifference(input_image.getpixel((pixel_x, pixel_y)), pallete_color)
-                pallete_color_difference *= 1 - uniform(-pixel_randomizer, pixel_randomizer)
 
                 if pallete_color_difference < palette_difference:
                     palette_difference = pallete_color_difference
@@ -35,9 +34,6 @@ def process(input_image, pixel_start_index, chunk_size, color_palette, pixel_ran
                     pixel_palette = pallete_color
             chunk.append(((pixel_x, pixel_y), pixel_palette))
         queue.put(chunk)
-
-def thread(chunk, image):
-    for pixel in chunk: image.putpixel(*pixel)
 
 if __name__ == '__main__':
     chunk_size = 128**2
@@ -57,7 +53,7 @@ if __name__ == '__main__':
 
     with image.open(arguments.image).convert('RGB') as input_image:
         process_queue = multiprocessing.Queue()
-        process_arguments = (input_image, multiprocessing.Value('i'), chunk_size, color_palette, pixel_randomizer, process_queue,)
+        process_arguments = (input_image, multiprocessing.Value('i'), chunk_size, color_palette, process_queue,)
 
         process_list = [multiprocessing.Process(target = process, args = process_arguments) for _ in range(multiprocessing.cpu_count())]
         for process in process_list: process.start()
