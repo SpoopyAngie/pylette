@@ -15,3 +15,6 @@
 ### Palette
 Color palette must be in a *yaml* file.
 Can find examples [here (Gogh)](https://github.com/Gogh-Co/Gogh)
+
+## Output:
+![[example.bmp]]
