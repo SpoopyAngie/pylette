@@ -6,7 +6,6 @@ from PIL import Image as image, ImageColor as imagecolor
 import multiprocessing
 import yaml
 from random import uniform
-from math import sqrt
 
 def colordifference(color_a, color_b):
     return (color_a[0] - color_b[0])**2 + (color_a[1] - color_b[1])**2 + (color_a[2] - color_b[2])**2
@@ -24,13 +23,11 @@ def process(input_image, pixel_start_index, chunk_size, color_palette, queue):
             
             palette_difference = 195075
             pixel_palette = None
-            pixel_palette_second = None
             for pallete_color in color_palette:
                 pallete_color_difference  = colordifference(input_image.getpixel((pixel_x, pixel_y)), pallete_color)
-
+                
                 if pallete_color_difference < palette_difference:
                     palette_difference = pallete_color_difference
-                    pixel_palette_second = pixel_palette
                     pixel_palette = pallete_color
             chunk.append(((pixel_x, pixel_y), pixel_palette))
         queue.put(chunk)
